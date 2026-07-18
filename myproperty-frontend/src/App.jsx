@@ -24,6 +24,7 @@ import { OwnerDashboard } from "./pages/owner/OwnerDashboard.jsx";
 import { OwnerProperties } from "./pages/owner/OwnerProperties.jsx";
 import { AddProperty } from "./pages/owner/AddProperty.jsx";
 import { OwnerBookings } from "./pages/owner/OwnerBookings.jsx";
+import VerifyMobile from "./pages/auth/VerifyMobile.jsx";
 
 function App() {
   // Restores session state (isLoggedIn/role) on a hard refresh by checking
@@ -40,6 +41,7 @@ function App() {
         <Route path="/properties/:id" element={<PropertyDetails />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/verifymobile/:mobile" element={<VerifyMobile />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/reset-password/:token" element={<ResetPassword role="user" />} />

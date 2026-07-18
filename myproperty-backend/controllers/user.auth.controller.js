@@ -27,8 +27,8 @@ export const registerUser = asyncHandler(async (req, res) => {
   if (password.length < 6) {
     throw new ApiError(400, "Password must be at least 6 characters");
   }
-
-  const existingUser = await User.findOne({ $or: [{ email }, { mobile }] });
+  const formattedPhone = `+91${mobile}`;
+  const existingUser = await User.findOne({ $or: [{ email }, { formattedPhone }] });
   if (existingUser) {
     throw new ApiError(409, "An account with this email or mobile already exists");
   }
@@ -38,7 +38,7 @@ export const registerUser = asyncHandler(async (req, res) => {
   const user = await User.create({
     fullName,
     email,
-    mobile,
+    mobile: formattedPhone,
     password: hashedPassword,
   });
 
@@ -52,24 +52,35 @@ export const registerUser = asyncHandler(async (req, res) => {
  * @route POST /api/user/login
  */
 export const loginUser = asyncHandler(async (req, res) => {
-  const { email, password } = req.body;
+  let { emailOrmobile, password } = req.body;
 
-  if (!email || !password) {
+  if (!emailOrmobile || !password) {
     throw new ApiError(400, "Email and password are required");
   }
 
-  const user = await User.findOne({ email }).select("+password");
+  if (/^\d+$/.test(emailOrmobile) && !emailOrmobile.startsWith("+91")) {
+    emailOrmobile = `+91${emailOrmobile}`;
+  }
+
+  const user = await User.findOne({
+    $or: [
+      { email: emailOrmobile },
+      { mobile: emailOrmobile }
+    ]
+  }).select("+password");
   if (!user) {
     throw new ApiError(404, "Invalid email or password");
   }
-
   const isMatch = await bcrypt.compare(password, user.password);
   if (!isMatch) {
     throw new ApiError(401, "Invalid email or password");
   }
-
+  //=====Send otp to verify user who not verified======
+  if (!user.isMobileVerified) {
+    await sendOtp(user.mobile);
+    return successResponse(res, 200, "OTP sent successfully",user);
+  }
   generateTokenAndSetCookie(res, user._id, "user");
-
   const userObj = user.toObject();
   delete userObj.password;
 
@@ -78,6 +89,23 @@ export const loginUser = asyncHandler(async (req, res) => {
   });
 });
 
+/**
+ * @route POST /api/user/verify-otp/:mobile
+ * Sends an OTP to the currently registered user's mobile number to verify mobile.
+ */
+export const verifymobile = asyncHandler(async (req, res) => {
+  const { otp } = req.body;
+  if (!otp) throw new ApiError(400, "OTP code is required");
+  const user = await User.findOne({mobile:req.params.mobile});
+  const isValid = await verifyOtp(user.mobile, otp);
+  if (!isValid) {
+    throw new ApiError(400, "Invalid or expired OTP");
+  }
+  user.isMobileVerified = true;
+  await user.save();
+  generateTokenAndSetCookie(res, user._id, "user");
+  return successResponse(res, 200, `Loging successfully ${user.fullName}`);
+});
 /**
  * @route POST /api/user/logout
  */

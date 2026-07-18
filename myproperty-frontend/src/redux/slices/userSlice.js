@@ -20,9 +20,9 @@ export const registerUser = createAsyncThunk(
 
 export const loginUser = createAsyncThunk(
   "user/login",
-  async (credentials, { dispatch, rejectWithValue }) => {
+  async (payload, { dispatch, rejectWithValue }) => {
     try {
-      const { data } = await axiosInstance.post("/user/login", credentials);
+      const { data } = await axiosInstance.post("/user/login", payload);
       dispatch(setAuthenticated({ role: "user" }));
       setStoredRole("user");
       return data;

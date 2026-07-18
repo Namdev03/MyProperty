@@ -6,9 +6,8 @@ const imageSchema = new Schema(
   {
     publicId: String,
     url: String,
-    trim:true
   },
-  { _id: false }
+  { _id: false },
 );
 
 const propertySchema = new Schema(

@@ -21,6 +21,5 @@ export function RoleProtectedRoute({ role }) {
   if (currentRole !== role) {
     return <Navigate to="/" replace />;
   }
-
   return <Outlet />;
 }

@@ -11,6 +11,7 @@ import {
   getUserProfile,
   updateUserProfile,
   updateUserProfileImage,
+  verifymobile,
 } from "../controllers/user.auth.controller.js";
 import {
   getWishlist,
@@ -27,6 +28,7 @@ const router = Router();
 // Public
 router.post("/register", registerUser);
 router.post("/login", loginUser);
+router.post('/verify/:mobile',verifymobile)
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);
 

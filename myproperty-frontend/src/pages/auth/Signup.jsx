@@ -25,9 +25,10 @@ export function Signup() {
     const action =
       role === "owner" ? registerOwner(formData) : registerUser(formData);
     const result = await dispatch(action);
-
-    if (result.meta.requestStatus === "fulfilled") {
-      toast.success("Account created! Please log in.");
+  console.log(result);
+  
+    if (result.payload.success) {
+      toast.success(result.payload.message);
       navigate("/login");
     } else {
       toast.error(result.payload || "Registration failed");

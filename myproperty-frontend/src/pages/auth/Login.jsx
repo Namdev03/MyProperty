@@ -20,17 +20,29 @@ export function Login() {
   } = useForm();
 
   const onSubmit = async (formData) => {
-    const action = role === "owner" ? loginOwner(formData) : loginUser(formData);
-    const result = await dispatch(action);
+  const action =
+    role === "owner" ? loginOwner(formData) : loginUser(formData);
 
-    if (result.meta.requestStatus === "fulfilled") {
+  const result = await dispatch(action);
+
+  if (result.meta.requestStatus === "fulfilled") {
+    // Mobile not verified
+    if (!result.payload.data?.user?.isMobileVerified) {
+       const mobile = result?.payload?.data?.mobile
+      navigate(`/verifymobile/${mobile}`);
       toast.success(result.payload.message);
-      const redirectTo = location.state?.from?.pathname || "/";
-      navigate(redirectTo, { replace: true });
-    } else {
-      toast.error(result.payload || "Login failed");
+      return;
     }
-  };
+
+    // Login successful
+    toast.success(result.payload.message);
+
+    const redirectTo = location.state?.from?.pathname || "/";
+    navigate(redirectTo, { replace: true });
+  } else {
+    toast.error(result.payload || "Login failed");
+  }
+};
 
   return (
     <div className="flex min-h-[calc(100vh-64px)] items-center justify-center bg-[#FEFDFB] px-4 py-12">
@@ -48,9 +60,8 @@ export function Login() {
               key={r}
               type="button"
               onClick={() => setRole(r)}
-              className={`flex-1 rounded-full py-2 text-sm font-semibold capitalize transition ${
-                role === r ? "bg-[#14213D] text-white shadow" : "text-gray-500"
-              }`}
+              className={`flex-1 rounded-full py-2 text-sm font-semibold capitalize transition ${role === r ? "bg-[#14213D] text-white shadow" : "text-gray-500"
+                }`}
             >
               {r}
             </button>
@@ -59,19 +70,41 @@ export function Login() {
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div>
-            <label className="mb-1 block text-sm font-medium text-gray-700">Email</label>
+            <label className="mb-1 block text-sm font-medium text-gray-700">
+              Email or Phone
+            </label>
+
             <div className="relative">
-              <Mail size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+              <Mail
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
+              />
+
               <input
-                type="email"
-                {...register("email", { required: "Email is required" })}
-                placeholder="you@example.com"
+                type="String"
+                {...register("emailOrmobile", {
+                  required: "Email or phone is required",
+                  validate: (value) => {
+                    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                    const phoneRegex = /^(\+91)?[6-9]\d{9}$/;
+
+                    if (emailRegex.test(value) || phoneRegex.test(value)) {
+                      return true;
+                    }
+                    return "Enter a valid email or mobile number";
+                  },
+                })}
+                placeholder="Enter email or phone"
                 className="w-full rounded-lg border border-[#E7E4DC] py-2.5 pl-10 pr-4 text-sm outline-none focus:border-[#2F6844] focus:ring-2 focus:ring-[#2F6844]/15"
               />
             </div>
-            {errors.email && <p className="mt-1 text-xs text-red-500">{errors.email.message}</p>}
-          </div>
 
+            {errors.emailOrmobile && (
+              <p className="mt-1 text-xs text-red-500">
+                {errors.emailOrmobile.message}
+              </p>
+            )}
+          </div>
           <div>
             <label className="mb-1 block text-sm font-medium text-gray-700">Password</label>
             <div className="relative">
