@@ -107,7 +107,6 @@ const VerifyMobile = () => {
   const handleResend = () => {
     console.log("Resend OTP");
     // Resend OTP API
-
     setOtp(Array(OTP_LENGTH).fill(""));
     inputRefs.current[0]?.focus();
     setTimer(20);
