@@ -171,7 +171,6 @@ export const resetPassword = asyncHandler(async (req, res) => {
   if (!password || password.length < 6) {
     throw new ApiError(400, "Password must be at least 6 characters");
   }
-
   const hashedToken = crypto.createHash("sha256").update(token).digest("hex");
 
   const user = await User.findOne({
