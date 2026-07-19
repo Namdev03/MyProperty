@@ -25,6 +25,7 @@ import { OwnerProperties } from "./pages/owner/OwnerProperties.jsx";
 import { AddProperty } from "./pages/owner/AddProperty.jsx";
 import { OwnerBookings } from "./pages/owner/OwnerBookings.jsx";
 import VerifyMobile from "./pages/auth/VerifyMobile.jsx";
+import BookingPage from "./pages/Booking.jsx";
 
 function App() {
   // Restores session state (isLoggedIn/role) on a hard refresh by checking
@@ -39,6 +40,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/properties" element={<PropertiesListing />} />
         <Route path="/properties/:id" element={<PropertyDetails />} />
+        <Route path="/properties/booking/:id" element={<BookingPage />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/verifymobile/:mobile" element={<VerifyMobile />} />

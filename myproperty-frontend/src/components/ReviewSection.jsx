@@ -39,7 +39,6 @@ export function ReviewSection({ property }) {
       toast.error(result.payload || "Failed to submit review");
     }
   };
-
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2">

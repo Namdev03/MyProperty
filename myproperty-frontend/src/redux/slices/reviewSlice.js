@@ -16,7 +16,6 @@ export const addReview = createAsyncThunk(
     }
   }
 );
-
 export const updateReview = createAsyncThunk(
   "review/update",
   async ({ reviewId, rating, comment }, { rejectWithValue }) => {
