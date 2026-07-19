@@ -18,7 +18,6 @@ export function PropertyDetails() {
   const { current: property, loading } = useSelector((state) => state.property);
   const { isLoggedIn, role } = useSelector((state) => state.auth);
   const userProfile = useSelector((state) => state.user.profile); 
-  
   useEffect(() => {
     dispatch(fetchPropertyById(id));
     return () => dispatch(clearCurrentProperty());

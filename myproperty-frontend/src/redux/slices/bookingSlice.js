@@ -4,16 +4,15 @@ import { getErrorMessage } from "../../utils/getErrorMessage.js";
 
 export const createBooking = createAsyncThunk(
   "booking/create",
-  async (bookingData, { rejectWithValue }) => {
+  async ({propertyId,formData}, { rejectWithValue }) => {
     try {
-      const { data } = await axiosInstance.post("/bookings", bookingData);
+      const { data } = await axiosInstance.post(`/bookings/booking/${propertyId}`, formData);
       return data;
     } catch (error) {
       return rejectWithValue(getErrorMessage(error));
     }
   }
 );
-
 export const cancelBooking = createAsyncThunk(
   "booking/cancel",
   async (bookingId, { rejectWithValue }) => {

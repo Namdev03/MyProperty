@@ -12,9 +12,10 @@ import { sendEmail } from "../utils/sendEmail.js";
  * User only.
  */
 export const createBooking = asyncHandler(async (req, res) => {
-  const { propertyId, fullName, email, phone, checkIn, checkOut } = req.body;
+  const {propertyId} = req.params;
+  const {  fullName, email, phone, checkIn, checkOut } = req.body;
 
-  if (!propertyId || !fullName || !email || !phone || !checkIn || !checkOut) {
+  if (!fullName || !email || !phone || !checkIn || !checkOut) {
     throw new ApiError(400, "All booking fields are required");
   }
 
@@ -43,7 +44,6 @@ export const createBooking = asyncHandler(async (req, res) => {
     checkIn: { $lt: checkOutDate },
     checkOut: { $gt: checkInDate },
   });
-
   if (overlapping) {
     throw new ApiError(409, "Property is already booked for the selected dates");
   }
