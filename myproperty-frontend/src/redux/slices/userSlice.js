@@ -3,9 +3,7 @@ import axiosInstance from "../../services/axiosInstance.js";
 import { getErrorMessage } from "../../utils/getErrorMessage.js";
 import { setAuthenticated, clearAuthenticated } from "./authSlice.js";
 import { setStoredRole, clearStoredRole } from "../../utils/authStorage.js";
-
 // ---- Thunks ----
-
 export const registerUser = createAsyncThunk(
   "user/register",
   async (formData, { rejectWithValue }) => {
@@ -31,7 +29,16 @@ export const loginUser = createAsyncThunk(
     }
   }
 );
-
+export const verifyMobile = createAsyncThunk('/user/verify/:mobile', async ({ mobile, otp }, { rejectWithValue ,dispatch}) => {
+  try {
+    const { data } = await axiosInstance.post(`/user/verify/${mobile}`, { otp })
+    dispatch(setAuthenticated({ role: "user" }));
+    setStoredRole("user");
+    return data;
+  } catch (error) {
+    return rejectWithValue(getErrorMessage(error))
+  }
+})
 export const logoutUser = createAsyncThunk(
   "user/logout",
   async (_, { dispatch, rejectWithValue }) => {
@@ -105,6 +112,7 @@ const initialState = {
   wishlist: [],
   loading: false,
   error: null,
+  verify: null
 };
 
 const userSlice = createSlice({
@@ -165,6 +173,14 @@ const userSlice = createSlice({
         } else {
           state.wishlist = state.wishlist.filter((p) => p._id !== propertyId);
         }
+      }).addCase(verifyMobile.pending, (state) => {
+        state.loading = true;
+      }).addCase(verifyMobile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.verify = action.payload;
+      }).addCase(verifyMobile.rejected, (state,action) => {
+        state.loading = false;
+        state.error = action.payload;
       });
   },
 });

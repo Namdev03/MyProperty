@@ -2,14 +2,20 @@ import React, { useEffect, useRef, useState } from "react";
 import axiosInstance from "../../services/axiosInstance.js";
 import { Navigate, replace, useNavigate, useParams } from "react-router"
 import { toast } from "react-toastify";
+import { useDispatch, useSelector } from "react-redux";
+import { verifyMobile } from "../../redux/slices/userSlice.js";
 const VerifyMobile = () => {
   const OTP_LENGTH = 6;
 
   const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(""));
   const [timer, setTimer] = useState(20);
   const [isResendDisabled, setIsResendDisabled] = useState(true);
+  const { loading,verify } = useSelector((store) => store.user)
+  console.log("verify",verify);
+  
   const { mobile } = useParams()
-  const nevigate = useNavigate()
+  const navigate = useNavigate()
+  const dispatch = useDispatch();
   const inputRefs = useRef([]);
 
   // Countdown Timer
@@ -87,22 +93,16 @@ const VerifyMobile = () => {
     if (otpCode.length !== 6) {
       return toast.error("Please enter a valid 6-digit OTP");
     }
-   try {
-    const response = await axiosInstance.post(
-      `/user/verify/${mobile}`,
-      {
-        otp: otpCode,
-      }
-    );
-    console.log(response);
-    console.log(response.ata);
-    toast.success(response.data.message);
-    nevigate("/", { replace: true })
-   } catch (error) {
-    console.log(error);
-    toast.error(error.resonse.data.message)
-   }
-   }
+     await dispatch(verifyMobile({ mobile, otp: otpCode }))
+    
+    if (verify?.success) {
+      toast.success(verify?.message)
+      navigate('/')
+    }
+    else {
+      toast.error("Verification failed");
+    }
+  }
   // Resend
   const handleResend = () => {
     console.log("Resend OTP");
@@ -148,13 +148,18 @@ const VerifyMobile = () => {
           </div>
 
           {/* Submit Button */}
-          <button
+          {!loading ?(<button
             type="submit"
             className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition"
           >
             Verify OTP
           </button>
-
+          ):(<button
+            type="submit"
+            className="w-full mt-8 bg-blue-600 hover:bg-blue-700 text-white py-3 rounded-xl font-semibold transition"
+          >
+            Verifying
+          </button>)}
           {/* Resend */}
           <div className="mt-6 text-center">
             <p className="text-gray-500 text-sm">
