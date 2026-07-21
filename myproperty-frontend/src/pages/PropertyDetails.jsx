@@ -17,7 +17,7 @@ export function PropertyDetails() {
   const dispatch = useDispatch();
   const { current: property, loading } = useSelector((state) => state.property);
   const { isLoggedIn, role } = useSelector((state) => state.auth);
-  const userProfile = useSelector((state) => state.user.profile); 
+  const userProfile = useSelector((state) => state.user.profile);
   useEffect(() => {
     dispatch(fetchPropertyById(id));
     return () => dispatch(clearCurrentProperty());
@@ -98,17 +98,23 @@ export function PropertyDetails() {
         </div>
         {/* Right: booking card */}
         <div className="lg:col-span-1">
-          <div className="sticky top-24 rounded-2xl border border-[#E7E4DC] p-6 shadow-sm">
+          <div className="sticky top-24 rounded-2xl border border-[#E7E4DC] bg-white p-6 shadow-sm">
             <p className="text-2xl font-bold text-[#2F6844]">
               ₹{property.price?.toLocaleString("en-IN")}
               {property.purpose === "Rent" && (
-                <span className="text-sm font-normal text-gray-500"> /month</span>
+                <span className="text-sm font-normal text-gray-500">
+                  {" "}
+                  /month
+                </span>
               )}
             </p>
 
-            <Link to={`${pagePath.BOOKIN}/${id}`}>
-              Book
-            </Link >
+            <Link
+              to={`${pagePath.BOOKIN}/${id}`}
+              className="mt-5 block w-full rounded-lg bg-[#2F6844] px-6 py-3 text-center font-semibold text-white transition hover:bg-[#245333] focus:outline-none focus:ring-2 focus:ring-[#2F6844] focus:ring-offset-2"
+            >
+              Book Now
+            </Link>
           </div>
         </div>
       </div>

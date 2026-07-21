@@ -41,7 +41,6 @@ export function Pagination({ page, totalPages, onPageChange }) {
           <PageButton n={totalPages} active={page === totalPages} onClick={onPageChange} />
         </>
       )}
-
       <button
         onClick={() => onPageChange(page + 1)}
         disabled={page === totalPages}
