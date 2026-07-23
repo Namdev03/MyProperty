@@ -23,8 +23,8 @@ const BookingPage = () => {
         fullName: "",
         email: "",
         phone: "",
-        checkIn: "",
-        checkOut: "",
+        // checkIn: "",
+        // checkOut: "",
     });
 
     useEffect(() => {
@@ -51,18 +51,18 @@ const BookingPage = () => {
         }));
     };
 
-    const nights =
-        formData.checkIn && formData.checkOut
-            ? Math.max(
-                0,
-                Math.ceil(
-                    (new Date(formData.checkOut) - new Date(formData.checkIn)) /
-                    (1000 * 60 * 60 * 24)
-                )
-            )
-            : 0;
+    // const nights =
+    //     formData.checkIn && formData.checkOut
+    //         ? Math.max(
+    //             0,
+    //             Math.ceil(
+    //                 (new Date(formData.checkOut) - new Date(formData.checkIn)) /
+    //                 (1000 * 60 * 60 * 24)
+    //             )
+    //         )
+    //         : 0;
 
-    const totalPrice = nights * (property?.price || 0);
+    // const totalPrice = nights * (property?.price || 0);
 
     const handleBooking = async (e) => {
         e.preventDefault();
@@ -77,10 +77,10 @@ const BookingPage = () => {
             return;
         }
 
-        if (!formData.checkIn || !formData.checkOut || nights <= 0) {
-            toast.error("Please select valid check-in and check-out dates");
-            return;
-        }
+        // if (!formData.checkIn || !formData.checkOut || nights <= 0) {
+        //     toast.error("Please select valid check-in and check-out dates");
+        //     return;
+        // }
 
         setSubmitting(true);
         const result = await dispatch(
@@ -99,12 +99,11 @@ const BookingPage = () => {
         }
     };
 
-    const today = new Date().toISOString().split("T")[0];
+    // const today = new Date().toISOString().split("T")[0];
 
     if (loading || !property) {
         return <Loader fullScreen />;
     }
-
     return (
         <div className="min-h-screen bg-slate-100 px-4 py-10">
             <div className="mx-auto grid max-w-6xl gap-8 lg:grid-cols-2">
@@ -196,7 +195,7 @@ const BookingPage = () => {
                             />
                         </div>
 
-                        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                        {/* <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
                             <div>
                                 <label className="mb-2 block font-medium">Check In</label>
                                 <input
@@ -220,7 +219,7 @@ const BookingPage = () => {
                                     className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none focus:ring-2 focus:ring-[#2F6844]/40 focus:border-[#2F6844]"
                                 />
                             </div>
-                        </div>
+                        </div> */}
 
                         <div className="rounded-2xl bg-[#2F6844]/5 p-5">
                             <div className="flex justify-between">
@@ -231,7 +230,7 @@ const BookingPage = () => {
                                 </span>
                             </div>
 
-                            {nights > 0 && (
+                            {/* {nights > 0 && (
                                 <>
                                     <div className="mt-2 flex justify-between text-sm text-gray-600">
                                         <span>{nights} night{nights > 1 ? "s" : ""}</span>
@@ -242,7 +241,7 @@ const BookingPage = () => {
                                         <span>₹{totalPrice.toLocaleString("en-IN")}</span>
                                     </div>
                                 </>
-                            )}
+                            )} */}
                         </div>
 
                         <button

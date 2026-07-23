@@ -12,59 +12,54 @@ import { sendEmail } from "../utils/sendEmail.js";
  * User only.
  */
 export const createBooking = asyncHandler(async (req, res) => {
-  const {propertyId} = req.params;
-  const {  fullName, email, phone, checkIn, checkOut } = req.body;
+  const { propertyId } = req.params;
+  const { fullName, email, phone } = req.body;
 
-  if (!fullName || !email || !phone || !checkIn || !checkOut) {
+  // Validate required fields
+  if (!fullName || !email || !phone) {
     throw new ApiError(400, "All booking fields are required");
   }
 
-  const checkInDate = new Date(checkIn);
-  const checkOutDate = new Date(checkOut);
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  if (checkInDate < today) {
-    throw new ApiError(400, "Check-in date cannot be in the past");
-  }
-  if (checkOutDate <= checkInDate) {
-    throw new ApiError(400, "Check-out date must be after check-in date");
-  }
-
+  // Find property
   const property = await Property.findById(propertyId);
-  if (!property) throw new ApiError(404, "Property not found");
+
+  if (!property) {
+    throw new ApiError(404, "Property not found");
+  }
+
+  // Check property availability
   if (!property.isAvailable) {
     throw new ApiError(400, "This property is not currently available");
   }
 
-  // Prevent double-booking: reject if any active booking overlaps the requested range
+  // Prevent duplicate active booking for the same property
   const overlapping = await Booking.findOne({
     property: propertyId,
     bookingStatus: { $in: ["Pending", "Confirmed"] },
-    checkIn: { $lt: checkOutDate },
-    checkOut: { $gt: checkInDate },
   });
+
   if (overlapping) {
-    throw new ApiError(409, "Property is already booked for the selected dates");
+    throw new ApiError(
+      409,
+      "Property is already booked or has a pending booking request"
+    );
   }
 
-  // Prevent the same user from creating a duplicate pending request for the same dates
+  // Prevent the same user from creating a duplicate booking
   const duplicate = await Booking.findOne({
     user: req.account._id,
     property: propertyId,
-    checkIn: checkInDate,
-    checkOut: checkOutDate,
     bookingStatus: { $in: ["Pending", "Confirmed"] },
   });
+
   if (duplicate) {
-    throw new ApiError(409, "You already have a booking request for these dates");
+    throw new ApiError(
+      409,
+      "You already have a booking request for this property"
+    );
   }
 
-  const nights = Math.ceil(
-    (checkOutDate - checkInDate) / (1000 * 60 * 60 * 24)
-  );
-  const totalPrice = nights * property.price;
-
+  // Create booking
   const booking = await Booking.create({
     user: req.account._id,
     property: propertyId,
@@ -72,16 +67,16 @@ export const createBooking = asyncHandler(async (req, res) => {
     fullName,
     email,
     phone,
-    checkIn: checkInDate,
-    checkOut: checkOutDate,
-    totalPrice,
   });
 
+  // Add booking to user's booked properties
   await User.findByIdAndUpdate(req.account._id, {
-    $push: { bookedProperties: booking._id },
+    $push: {
+      bookedProperties: booking._id,
+    },
   });
 
-  // Notify the owner in-app
+  // Notify property owner
   const ownerNotification = await Notification.create({
     recipient: property.owner,
     recipientModel: "Owner",
@@ -91,25 +86,39 @@ export const createBooking = asyncHandler(async (req, res) => {
     relatedBooking: booking._id,
   });
 
-  // Email confirmation to the user (best-effort — booking still succeeds if email fails)
+  // Send email confirmation
   try {
     await sendEmail({
       to: email,
       subject: "Booking Request Received - MyProperty",
-      html: `<p>Hi ${fullName},</p>
-             <p>Your booking request for <strong>${property.title}</strong>
-             (${checkInDate.toDateString()} - ${checkOutDate.toDateString()})
-             has been received and is pending confirmation.</p>
-             <p>Total: ₹${totalPrice}</p>`,
+      html: `
+        <p>Hi ${fullName},</p>
+        <p>
+          Your booking request for
+          <strong>${property.title}</strong>
+          has been received and is pending confirmation.
+        </p>
+        <p>
+          We will notify you once the owner confirms your booking.
+        </p>
+      `,
     });
   } catch (err) {
-    console.error("Booking confirmation email failed:", err.message);
+    console.error(
+      "Booking confirmation email failed:",
+      err.message
+    );
   }
 
-  return successResponse(res, 201, "Booking request created successfully", {
-    booking,
-    ownerNotification,
-  });
+  return successResponse(
+    res,
+    201,
+    "Booking request created successfully",
+    {
+      booking,
+      ownerNotification,
+    }
+  );
 });
 
 /**

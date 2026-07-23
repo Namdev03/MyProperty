@@ -29,8 +29,8 @@ export function Contact() {
       <div className="mt-12 grid grid-cols-1 gap-10 lg:grid-cols-5">
         <div className="space-y-6 lg:col-span-2">
           <ContactInfo icon={Mail} label="Email" value="hello@myproperty.com" />
-          <ContactInfo icon={Phone} label="Phone" value="+91 98765 43210" />
-          <ContactInfo icon={MapPin} label="Office" value="Indore, Madhya Pradesh, India" />
+          <ContactInfo icon={Phone} label="Phone" value="+91 6266976479" />
+          <ContactInfo icon={MapPin} label="Office" value="Raipur,Chhattishgarh,India" />
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 lg:col-span-3">

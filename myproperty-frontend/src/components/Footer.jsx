@@ -45,8 +45,8 @@ export function Footer() {
           </h4>
           <ul className="space-y-2 text-sm text-white/60">
             <li className="flex items-center gap-2"><Mail size={14} /> hello@myproperty.com</li>
-            <li className="flex items-center gap-2"><Phone size={14} /> +91 98765 43210</li>
-            <li className="flex items-center gap-2"><MapPin size={14} /> Indore, MP, India</li>
+            <li className="flex items-center gap-2"><Phone size={14} />+91 6266976479</li>
+            <li className="flex items-center gap-2"><MapPin size={14} />Raipur,Chhattishgarh,India</li>
           </ul>
         </div>
       </div>
